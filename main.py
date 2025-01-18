@@ -11,24 +11,31 @@ class MainApp(MDApp):
         Window.size = (360, 640)
         self.theme_cls.primary_palette = "Green"
 
-        # Create the ScreenManager
         screen_manager = ScreenManager()
 
-        # Add your screens to the ScreenManager
         screen_manager.add_widget(Login(name="Login"))
+
         screen_manager.add_widget(Registration_Type(name="Registration_Type"))
+
         screen_manager.add_widget(Register_Student1(name="Register_Student1"))
+
         screen_manager.add_widget(Register_Student2(name="Register_Student2"))
+
         screen_manager.add_widget(Register_Student3(name="Register_Student3"))
+
         screen_manager.add_widget(Register_Teacher1(name="Register_Teacher1"))
+
         screen_manager.add_widget(Register_Teacher2(name="Register_Teacher2"))
+
         screen_manager.add_widget(Home_Student(name="home"))
+
         screen_manager.add_widget(Forgot_Password(name="forgot_password"))
+
         screen_manager.add_widget(Forgot_Password2(name="forgot_password2"))
+
         screen_manager.add_widget(Forgot_Password3(name="forgot_password3"))
 
         return screen_manager
-
 
 if __name__ == "__main__":
     MainApp().run()

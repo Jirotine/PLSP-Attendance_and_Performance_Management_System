@@ -6,11 +6,10 @@ from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 
-class Login(MDScreen):  # Make sure to inherit from Screen
+class Login(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Create a FloatLayout to handle the background and widgets
         layout = FloatLayout(size_hint=(1, 1))  # Full-screen layout
 
         # Background Image
@@ -37,7 +36,6 @@ class Login(MDScreen):  # Make sure to inherit from Screen
         spacer = BoxLayout(size_hint_y=None, height="20dp")
         card.add_widget(spacer)
 
-        # Add elements to the card
         logo = Image(
             source="assets/logo.png",
             size_hint=(0.6, None),
@@ -46,7 +44,6 @@ class Login(MDScreen):  # Make sure to inherit from Screen
         )
         card.add_widget(logo)
 
-        # Group text fields in a BoxLayout
         text_fields_box = BoxLayout(
             orientation="vertical",
             spacing="15dp",
@@ -100,8 +97,6 @@ class Login(MDScreen):  # Make sure to inherit from Screen
         login_button.bind(on_release=switch_to_home_screen)
         card.add_widget(login_button)
 
-
-        # Register Button with screen switch
         def switch_to_register_screen(instance):
             self.manager.current = "Registration_Type"
 
@@ -115,8 +110,6 @@ class Login(MDScreen):  # Make sure to inherit from Screen
         register_button.bind(on_release=switch_to_register_screen)
         card.add_widget(register_button)
 
-        # Add card to the layout
         layout.add_widget(card)
 
-        # Add the layout with background and card to the screen
         self.add_widget(layout)

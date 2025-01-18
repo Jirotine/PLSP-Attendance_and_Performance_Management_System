@@ -13,7 +13,6 @@ class Forgot_Password(MDScreen):
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -23,7 +22,6 @@ class Forgot_Password(MDScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -98,7 +96,6 @@ class Forgot_Password2(MDScreen):
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -108,7 +105,6 @@ class Forgot_Password2(MDScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -182,7 +178,6 @@ class Forgot_Password3(MDScreen):
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -192,7 +187,6 @@ class Forgot_Password3(MDScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),

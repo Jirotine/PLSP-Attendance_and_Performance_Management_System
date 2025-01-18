@@ -10,15 +10,12 @@ from kivy.uix.scrollview import ScrollView
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
 
-
 class Home_Student(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Main layout
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -57,7 +54,6 @@ class Home_Student(MDScreen):
             )
         )
 
-        # Icons Layout
         icons_layout = BoxLayout(
             orientation="horizontal",
             size_hint=(None, None),
@@ -67,7 +63,6 @@ class Home_Student(MDScreen):
             pos_hint={"center_x": 0.5},
         )
 
-        # QR Code Icon
         qr_code_icon = MDIconButton(
             icon="qrcode",
             theme_text_color="Custom",
@@ -78,7 +73,6 @@ class Home_Student(MDScreen):
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
-        # Logout Icon
         logout_icon = MDIconButton(
             icon="logout",
             theme_text_color="Custom",
@@ -87,20 +81,16 @@ class Home_Student(MDScreen):
         )
         logout_icon.bind(on_release=switch_to_login_screen)
 
-        # Add icons to the layout
         icons_layout.add_widget(qr_code_icon)
         icons_layout.add_widget(logout_icon)
 
-        # Add the icons layout to the card
         card_user_profile.add_widget(icons_layout)
 
-        # Add the Card to the Layout
         layout.add_widget(card_user_profile)
 
-        # Scrollable Card for user class
         card_user_class = MDCard(
             orientation="vertical",
-            size_hint=(0.9, 0.5),  # Set height as a percentage to make it scrollable
+            size_hint=(0.9, 0.5),
             pos_hint={"center_x": 0.5, "center_y": 0.28},
             radius=[15, 15, 15, 15],
             padding=[10, 10, 10, 10],
@@ -111,7 +101,7 @@ class Home_Student(MDScreen):
 
         # GridLayout to hold folders/icons
         self.grid_layout = GridLayout(
-            cols=3,  # Limit to 3 items per row
+            cols=3,
             spacing=10,
             size_hint_y=None,
         )
@@ -120,7 +110,6 @@ class Home_Student(MDScreen):
         scroll_view.add_widget(self.grid_layout)
         card_user_class.add_widget(scroll_view)
 
-        # Create a dialog with a text field
         self.dialog = None
 
         def open_add_class_dialog(instance):
@@ -180,7 +169,6 @@ class Home_Student(MDScreen):
 
             self.dialog.dismiss()
 
-        # Add Class Button
         add_class_button = MDIconButton(
             icon="plus-box",
             pos_hint={"center_x": 0.5},

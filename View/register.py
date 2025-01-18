@@ -22,7 +22,6 @@ class Registration_Type(MDScreen):
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -32,7 +31,6 @@ class Registration_Type(MDScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -43,7 +41,6 @@ class Registration_Type(MDScreen):
             spacing="25dp"
         )
 
-        # Program Dropdown
         self.user_type = MDRectangleFlatButton(
             text="Select User Type",
             size_hint=(1, None),
@@ -63,7 +60,6 @@ class Registration_Type(MDScreen):
         self.user_type.bind(on_release=lambda instance: self.user_menu.open())
         card.add_widget(self.user_type)
 
-        # Register Button
         register_button = MDRaisedButton(
             text=">",
             text_color=[1, 1, 1, 1],
@@ -75,7 +71,6 @@ class Registration_Type(MDScreen):
         register_button.bind(on_release=self.go_to_next_screen)
         card.add_widget(register_button)
 
-        # Switch to Login Screen Button
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
@@ -90,10 +85,7 @@ class Registration_Type(MDScreen):
         login_button.bind(on_release=switch_to_login_screen)
         card.add_widget(login_button)
 
-        # Add card to the layout
         layout.add_widget(card)
-
-        # Add the layout with background and card to the screen
         self.add_widget(layout)
 
     def set_program(self, text):
@@ -108,14 +100,12 @@ class Registration_Type(MDScreen):
         else:
             toast("Please select a user type!")
 
-
 class Register_Student1(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -125,7 +115,6 @@ class Register_Student1(BaseRegistrationScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -173,7 +162,6 @@ class Register_Student1(BaseRegistrationScreen):
             last_name = self.last_name_field.text
             student_id = self.student_id_field.text
 
-            # Update registration data
             self.registration_data.update({"first_name": first_name})
             self.registration_data.update({"last_name": last_name})
             self.registration_data.update({"student_id": student_id})
@@ -181,7 +169,7 @@ class Register_Student1(BaseRegistrationScreen):
             if not (first_name and last_name and student_id):
                 toast("Please fill up the missing fields")
             else:
-                print("Registration Data:", self.registration_data)  # Debugging line
+                print("Registration Data:", self.registration_data)
                 self.manager.current = "Register_Student2"
                 self.manager.get_screen("Register_Student2").registration_data = self.registration_data
 
@@ -211,7 +199,6 @@ class Register_Student1(BaseRegistrationScreen):
         card.add_widget(login_button)
 
         layout.add_widget(card)
-
         self.add_widget(layout)
 
 class Register_Student2(BaseRegistrationScreen):
@@ -220,7 +207,6 @@ class Register_Student2(BaseRegistrationScreen):
 
         layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -230,7 +216,6 @@ class Register_Student2(BaseRegistrationScreen):
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -241,7 +226,6 @@ class Register_Student2(BaseRegistrationScreen):
             spacing="25dp"
         )
 
-        # Program Dropdown
         self.program_type = MDRectangleFlatButton(
             text="Select Program",
             size_hint=(1, None),
@@ -261,7 +245,6 @@ class Register_Student2(BaseRegistrationScreen):
         self.program_type.bind(on_release=lambda instance: self.program_menu.open())
         card.add_widget(self.program_type)
 
-        # Major Dropdown
         self.major_field = MDRectangleFlatButton(
             text="Select Major",
             size_hint=(1, None),
@@ -271,7 +254,6 @@ class Register_Student2(BaseRegistrationScreen):
         )
         major_menu_items = [
             {"text": "Computer Science", "on_release": lambda x="Computer Science": self.set_major(x)},
-            # Add other majors here...
         ]
         self.major_menu = MDDropdownMenu(
             caller=self.major_field,
@@ -281,26 +263,20 @@ class Register_Student2(BaseRegistrationScreen):
         self.major_field.bind(on_release=lambda instance: self.major_menu.open())
         card.add_widget(self.major_field)
 
-        first_name = self.registration_data.get("first_name", "")
-        last_name = self.registration_data.get("last_name", "")
-        student_id = self.registration_data.get("student_id", "")
-
         def submit_info2(instance):
             program = self.program_type.text
             major = self.major_field.text
 
-            # Update registration data
             self.registration_data.update({"program": program})
             self.registration_data.update({"major": major})
 
             if not (major and program):
                 toast("Please fill up the missing fields")
             else:
-                print("Registration Data:", self.registration_data)  # Debugging line
+                print("Registration Data:", self.registration_data)
                 self.manager.current = "Register_Student3"
                 self.manager.get_screen("Register_Student3").registration_data = self.registration_data
 
-        # Register Button
         register_button = MDRaisedButton(
             text=">",
             text_color=[1, 1, 1, 1],
@@ -312,7 +288,6 @@ class Register_Student2(BaseRegistrationScreen):
         register_button.bind(on_release=submit_info2)
         card.add_widget(register_button)
 
-        # Switch to Login Screen Button
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
@@ -328,7 +303,6 @@ class Register_Student2(BaseRegistrationScreen):
         card.add_widget(login_button)
 
         layout.add_widget(card)
-
         self.add_widget(layout)
 
     def set_program_name(self, text):
@@ -339,14 +313,12 @@ class Register_Student2(BaseRegistrationScreen):
         self.major_field.text = text
         self.major_menu.dismiss()
 
-class Register_Student3(BaseRegistrationScreen):  # Make sure to inherit from Screen
+class Register_Student3(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Create a FloatLayout to handle the background and widgets
-        layout = FloatLayout(size_hint=(1, 1))  # Full-screen layout
+        layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -356,7 +328,6 @@ class Register_Student3(BaseRegistrationScreen):  # Make sure to inherit from Sc
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -392,7 +363,7 @@ class Register_Student3(BaseRegistrationScreen):  # Make sure to inherit from Sc
 
         self.confirm_password_field = MDTextField(
             hint_text="Confirm Password",
-            password= True,
+            password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
@@ -415,13 +386,11 @@ class Register_Student3(BaseRegistrationScreen):  # Make sure to inherit from Sc
             self.registration_data["password"] = password
             self.registration_data["email"] = email
 
-
             if not (password and email and confirm_password):
                 toast("Please fill up the missing fields")
             elif password != confirm_password:
                 toast("Passwords do not match")
             else:
-                # Call the UserController to register the student
                 self.user_controller.register_student(
                     first_name=self.registration_data.get("first_name"),
                     last_name=self.registration_data.get("last_name"),
@@ -460,17 +429,14 @@ class Register_Student3(BaseRegistrationScreen):  # Make sure to inherit from Sc
         card.add_widget(login_button)
 
         layout.add_widget(card)
-
         self.add_widget(layout)
 
-class Register_Teacher1(MDScreen):  # Make sure to inherit from Screen
+class Register_Teacher1(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Create a FloatLayout to handle the background and widgets
-        layout = FloatLayout(size_hint=(1, 1))  # Full-screen layout
+        layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -480,7 +446,6 @@ class Register_Teacher1(MDScreen):  # Make sure to inherit from Screen
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -537,7 +502,6 @@ class Register_Teacher1(MDScreen):  # Make sure to inherit from Screen
         register_button.bind(on_release=switch_to_register_student2_screen)
         card.add_widget(register_button)
 
-
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
@@ -553,17 +517,14 @@ class Register_Teacher1(MDScreen):  # Make sure to inherit from Screen
         card.add_widget(login_button)
 
         layout.add_widget(card)
-
         self.add_widget(layout)
 
-class Register_Teacher2(MDScreen):  # Make sure to inherit from Screen
+class Register_Teacher2(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Create a FloatLayout to handle the background and widgets
-        layout = FloatLayout(size_hint=(1, 1))  # Full-screen layout
+        layout = FloatLayout(size_hint=(1, 1))
 
-        # Background Image
         background = Image(
             source="assets/background.png",
             allow_stretch=True,
@@ -573,7 +534,6 @@ class Register_Teacher2(MDScreen):  # Make sure to inherit from Screen
         )
         layout.add_widget(background)
 
-        # Card
         card = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
@@ -609,7 +569,7 @@ class Register_Teacher2(MDScreen):  # Make sure to inherit from Screen
 
         confirm_password_field = MDTextField(
             hint_text="Confirm Password",
-            password= True,
+            password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
@@ -644,5 +604,4 @@ class Register_Teacher2(MDScreen):  # Make sure to inherit from Screen
         card.add_widget(login_button)
 
         layout.add_widget(card)
-
         self.add_widget(layout)
