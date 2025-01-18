@@ -169,8 +169,16 @@ class Register_Student1(BaseRegistrationScreen):
             if not (first_name and last_name and student_id):
                 toast("Please fill up the missing fields")
             else:
-                self.manager.current = "Register_Student2"
-                self.manager.get_screen("Register_Student2").registration_data = self.registration_data
+                result = self.user_controller.validate_user_id(student_id)
+                if result.get("status") == "fail":
+                    toast(result.get("message"))
+                else:
+                    result = self.user_controller.validate_student(last_name, student_id)
+                    if result.get("status") == "fail":
+                        toast(result.get("message"))
+                    else:
+                        self.manager.current = "Register_Student2"
+                        self.manager.get_screen("Register_Student2").registration_data = self.registration_data
 
         register_button = MDRaisedButton(
             text=">",
@@ -201,118 +209,6 @@ class Register_Student1(BaseRegistrationScreen):
         self.add_widget(layout)
 
 class Register_Student2(BaseRegistrationScreen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        layout = FloatLayout(size_hint=(1, 1))
-
-        background = Image(
-            source="assets/background.png",
-            allow_stretch=True,
-            keep_ratio=False,
-            size_hint=(2, 1),
-            pos_hint={"x": 0, "y": 0},
-        )
-        layout.add_widget(background)
-
-        card = MDCard(
-            orientation="vertical",
-            size_hint=(0.9, None),
-            height="280dp",
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-            radius=[15, 15, 15, 15],
-            padding=[20, -20, 20, 20],
-            spacing="25dp"
-        )
-
-        self.program_type = MDRectangleFlatButton(
-            text="Select Program",
-            size_hint=(1, None),
-            height="50dp",
-            pos_hint={"center_x": 0.5},
-            font_name="Roboto-Bold"
-        )
-        program_type_menu = [
-            {"text": "BA in Communication", "on_release": lambda x="BA in Communication": self.set_program_name(x)},
-        ]
-        self.program_menu = MDDropdownMenu(
-            caller=self.program_type,
-            items=program_type_menu,
-            width_mult=1,
-            position="center"
-        )
-        self.program_type.bind(on_release=lambda instance: self.program_menu.open())
-        card.add_widget(self.program_type)
-
-        self.major_field = MDRectangleFlatButton(
-            text="Select Major",
-            size_hint=(1, None),
-            height="50dp",
-            pos_hint={"center_x": 0.5},
-            font_name="Roboto-Bold"
-        )
-        major_menu_items = [
-            {"text": "Computer Science", "on_release": lambda x="Computer Science": self.set_major(x)},
-        ]
-        self.major_menu = MDDropdownMenu(
-            caller=self.major_field,
-            items=major_menu_items,
-            width_mult=4
-        )
-        self.major_field.bind(on_release=lambda instance: self.major_menu.open())
-        card.add_widget(self.major_field)
-
-        def submit_info2(instance):
-            program = self.program_type.text
-            major = self.major_field.text
-
-            self.registration_data.update({"program": program})
-            self.registration_data.update({"major": major})
-
-            if not (major and program):
-                toast("Please fill up the missing fields")
-            else:
-                print("Registration Data:", self.registration_data)
-                self.manager.current = "Register_Student3"
-                self.manager.get_screen("Register_Student3").registration_data = self.registration_data
-
-        register_button = MDRaisedButton(
-            text=">",
-            text_color=[1, 1, 1, 1],
-            size_hint=(1, None),
-            height="50dp",
-            pos_hint={"center_x": 0.5},
-            font_name="assets/fonts/Uni Sans Heavy.otf",
-        )
-        register_button.bind(on_release=submit_info2)
-        card.add_widget(register_button)
-
-        def switch_to_login_screen(instance):
-            self.manager.current = "Login"
-
-        login_button = MDIconButton(
-            icon="close-circle",
-            size_hint=(1, None),
-            theme_text_color="Custom",
-            text_color=(0, 0.6, 0, 1),
-            height="50dp",
-            pos_hint={"center_x": 0.5},
-        )
-        login_button.bind(on_release=switch_to_login_screen)
-        card.add_widget(login_button)
-
-        layout.add_widget(card)
-        self.add_widget(layout)
-
-    def set_program_name(self, text):
-        self.program_type.text = text
-        self.program_menu.dismiss()
-
-    def set_major(self, text):
-        self.major_field.text = text
-        self.major_menu.dismiss()
-
-class Register_Student3(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -371,13 +267,7 @@ class Register_Student3(BaseRegistrationScreen):
 
         card.add_widget(text_fields_box)
 
-        first_name = self.registration_data.get("first_name", "")
-        last_name = self.registration_data.get("last_name", "")
-        student_id = self.registration_data.get("student_id", "")
-        program = self.registration_data.get("program", "")
-        major = self.registration_data.get("major", "")
-
-        def submit_info3(instance):
+        def submit_info2(instance):
             password = self.password_field.text
             email = self.email_field.text
             confirm_password = self.confirm_password_field.text
@@ -390,17 +280,19 @@ class Register_Student3(BaseRegistrationScreen):
             elif password != confirm_password:
                 toast("Passwords do not match")
             else:
-                self.user_controller.register_student(
-                    first_name=self.registration_data.get("first_name"),
-                    last_name=self.registration_data.get("last_name"),
-                    student_id=self.registration_data.get("student_id"),
-                    email=email,
-                    password=password,
-                    program=self.registration_data.get("program"),
-                    major=self.registration_data.get("major")
-                )
-                toast("Registration Successful")
-                self.manager.current = "Login"
+                result = self.user_controller.validate_email(email)
+                if result.get("status") == "fail":
+                    toast(result.get("message"))
+                else:
+                    self.user_controller.register_student(
+                        student_id=self.registration_data.get("student_id"),
+                        first_name=self.registration_data.get("first_name"),
+                        last_name=self.registration_data.get("last_name"),
+                        email=email,
+                        password=password,
+                    )
+                    toast("Registration Successful")
+                    self.manager.current = "Login"
 
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
@@ -413,7 +305,7 @@ class Register_Student3(BaseRegistrationScreen):
             pos_hint={"center_x": 0.5},
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
-        register_button.bind(on_release=submit_info3)
+        register_button.bind(on_release=submit_info2)
         card.add_widget(register_button)
 
         login_button = MDIconButton(
@@ -499,8 +391,16 @@ class Register_Teacher1(BaseRegistrationScreen):
             if not (first_name and last_name and teacher_id):
                 toast("Please fill up the missing fields")
             else:
-                self.manager.current = "Register_Teacher2"
-                self.manager.get_screen("Register_Teacher2").registration_data = self.registration_data
+                result=self.user_controller.validate_user_id(teacher_id)
+                if result.get("status") == "fail":
+                    toast(result.get("message"))
+                else:
+                    result = self.user_controller.validate_teacher(last_name, teacher_id)
+                    if result.get("status") == "fail":
+                        toast(result.get("message"))
+                    else:
+                        self.manager.current = "Register_Teacher2"
+                        self.manager.get_screen("Register_Teacher2").registration_data = self.registration_data
 
         register_button = MDRaisedButton(
             text=">",
@@ -590,27 +490,31 @@ class Register_Teacher2(BaseRegistrationScreen):
         card.add_widget(text_fields_box)
 
         def submit_info_teacher2(instance):
-            email = self.email_field.text
             password = self.password_field.text
+            email = self.email_field.text
             confirm_password = self.confirm_password_field.text
 
-            self.registration_data.update({"email": email})
-            self.registration_data.update({"password": password})
+            self.registration_data["password"] = password
+            self.registration_data["email"] = email
 
-            if password != confirm_password:
-                toast("Passwords do not match")
-            if not (email and password and confirm_password):
+            if not (password and email and confirm_password):
                 toast("Please fill up the missing fields")
+            elif password != confirm_password:
+                toast("Passwords do not match")
             else:
-                self.user_controller.register_teacher(
-                first_name=self.registration_data.get("first_name"),
-                last_name=self.registration_data.get("last_name"),
-                teacher_id=self.registration_data.get("teacher_id"),
-                email=email,
-                password=password
-                )
-                toast("Registered successfully")
-                self.manager.current = "Login"
+                result = self.user_controller.validate_email(email)
+                if result.get("status") == "fail":
+                    toast(result.get("message"))
+                else:
+                    self.user_controller.register_teacher(
+                        teacher_id=self.registration_data.get("teacher_id"),
+                        first_name=self.registration_data.get("first_name"),
+                        last_name=self.registration_data.get("last_name"),
+                        email=email,
+                        password=password,
+                    )
+                    toast("Registration Successful")
+                    self.manager.current = "Login"
 
         register_button = MDRaisedButton(
             text="Register",
