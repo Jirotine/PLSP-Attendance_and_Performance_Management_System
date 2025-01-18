@@ -5,29 +5,40 @@ class UserController:
         self.model = UserModel()
 
     def register_student(self, first_name, last_name, student_id, email, password, program, major):
+        hashed_password = self.model.hash_password(password)
         data = {
             "first_name": first_name,
             "last_name": last_name,
             "student_id": student_id,
             "email": email,
-            "password": password,
+            "password": hashed_password,
             "program": program,
             "major": major,
         }
-        return self.model.insert_student(data)
+        result = self.model.insert_student(data)
+        if "error" in result:
+            return {"status": "fail", "message": result["error"]}
+        return {"status": "success", "message": "Student registered successfully!"}
 
-    def register_teacher(self, first_name, last_name, teacher_id, email):
+    def register_teacher(self, first_name, last_name, teacher_id, email, password):
         data = {
             "first_name": first_name,
             "last_name": last_name,
             "teacher_id": teacher_id,
             "email": email,
+            "passowrd": password
         }
-        return self.model.insert_teacher(data)
+        result = self.model.insert_teacher(data)
+        if "error" in result:
+            return {"status": "fail", "message": result["error"]}
+        return {"status": "success", "message": "Teacher registered successfully!"}
 
-    def login_Account(self, email, password):
-        data= {
-            "email": email,
-            "password": password,
-        }
-        return self.model.check_student(data)
+    def login_account(self, email, password):
+        user = self.model.check_student(email)
+        if not user:
+            return {"status": "fail", "message": "User not found"}
+
+        hashed_password = user[0].get("password")
+        if self.model.verify_password(password, hashed_password):
+            return {"status": "success", "message": "Login successful!"}
+        return {"status": "fail", "message": "Invalid email or password"}

@@ -5,12 +5,17 @@ from kivymd.uix.button import MDRaisedButton, MDFlatButton, MDTextButton
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
+from Controller.user_controller import UserController
+from kivymd.uix.dialog import MDDialog
+
 
 class Login(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = FloatLayout(size_hint=(1, 1))  # Full-screen layout
+        self.UserController = UserController()
+
+        layout = FloatLayout(size_hint=(1, 1))
 
         # Background Image
         background = Image(
@@ -50,29 +55,31 @@ class Login(MDScreen):
             size_hint=(1, None),
         )
 
-        email_field = MDTextField(
+        # Email Field
+        self.email_field = MDTextField(
             hint_text="Email",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold",
         )
-        text_fields_box.add_widget(email_field)
+        text_fields_box.add_widget(self.email_field)
 
-        password_field = MDTextField(
+        # Password Field
+        self.password_field = MDTextField(
             hint_text="Password",
             size_hint_x=1,
             mode="rectangle",
             password=True,
             font_name="Roboto-Bold",
         )
-        text_fields_box.add_widget(password_field)
+        text_fields_box.add_widget(self.password_field)
 
         card.add_widget(text_fields_box)
 
         def switch_to_forgot_password_screen(instance):
             self.manager.current = "forgot_password"
 
-        forgot_password_button= MDTextButton(
+        forgot_password_button = MDTextButton(
             text="Forgot Password?",
             size_hint=(1, None),
             pos_hint={"center_x": 0.8},
@@ -83,8 +90,22 @@ class Login(MDScreen):
         forgot_password_button.bind(on_release=switch_to_forgot_password_screen)
         card.add_widget(forgot_password_button)
 
-        def switch_to_home_screen(instance):
-            self.manager.current = "home"
+        # Login Functionality
+        def login_user(instance):
+            email = self.email_field.text.strip()
+            password = self.password_field.text.strip()
+
+            if not email or not password:
+                self.show_dialog("Error", "Please enter both email and password.")
+                return
+
+            result = self.UserController.login_account(email, password)
+
+            if result["status"] == "success":
+                self.show_dialog("Success", result["message"])
+                self.manager.current = "home"
+            else:
+                self.show_dialog("Login Failed", result["message"])
 
         login_button = MDRaisedButton(
             text="Login",
@@ -94,7 +115,7 @@ class Login(MDScreen):
             text_color=[1, 1, 1, 1],
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
-        login_button.bind(on_release=switch_to_home_screen)
+        login_button.bind(on_release=login_user)
         card.add_widget(login_button)
 
         def switch_to_register_screen(instance):
@@ -113,3 +134,9 @@ class Login(MDScreen):
         layout.add_widget(card)
 
         self.add_widget(layout)
+
+    def show_dialog(self, title, message):
+        if hasattr(self, "dialog") and self.dialog:
+            self.dialog.dismiss()
+        self.dialog = MDDialog(title=title, text=message, size_hint=(0.8, None))
+        self.dialog.open()

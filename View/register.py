@@ -169,7 +169,6 @@ class Register_Student1(BaseRegistrationScreen):
             if not (first_name and last_name and student_id):
                 toast("Please fill up the missing fields")
             else:
-                print("Registration Data:", self.registration_data)
                 self.manager.current = "Register_Student2"
                 self.manager.get_screen("Register_Student2").registration_data = self.registration_data
 
@@ -431,7 +430,7 @@ class Register_Student3(BaseRegistrationScreen):
         layout.add_widget(card)
         self.add_widget(layout)
 
-class Register_Teacher1(MDScreen):
+class Register_Teacher1(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -462,34 +461,46 @@ class Register_Teacher1(MDScreen):
             size_hint=(1, None),
         )
 
-        first_name_field = MDTextField(
+        self.first_name_field = MDTextField(
             hint_text="First Name",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(first_name_field)
+        text_fields_box.add_widget(self.first_name_field)
 
-        last_name_field = MDTextField(
+        self.last_name_field = MDTextField(
             hint_text="Last Name",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(last_name_field)
+        text_fields_box.add_widget(self.last_name_field)
 
-        student_id_field = MDTextField(
+        self.teacher_id_field = MDTextField(
             hint_text="Teacher ID",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(student_id_field)
+        text_fields_box.add_widget(self.teacher_id_field)
 
         card.add_widget(text_fields_box)
 
-        def switch_to_register_student2_screen(instance):
-            self.manager.current = "Register_Teacher2"
+        def submit_info_teacher1(instance):
+            first_name = self.first_name_field.text
+            last_name = self.last_name_field.text
+            teacher_id = self.teacher_id_field.text
+
+            self.registration_data.update({"first_name": first_name})
+            self.registration_data.update({"last_name": last_name})
+            self.registration_data.update({"teacher_id": teacher_id})
+
+            if not (first_name and last_name and teacher_id):
+                toast("Please fill up the missing fields")
+            else:
+                self.manager.current = "Register_Teacher2"
+                self.manager.get_screen("Register_Teacher2").registration_data = self.registration_data
 
         register_button = MDRaisedButton(
             text=">",
@@ -499,7 +510,7 @@ class Register_Teacher1(MDScreen):
             font_name="assets/fonts/Uni Sans Heavy.otf",
             text_color=[1, 1, 1, 1],
         )
-        register_button.bind(on_release=switch_to_register_student2_screen)
+        register_button.bind(on_release=submit_info_teacher1)
         card.add_widget(register_button)
 
         def switch_to_login_screen(instance):
@@ -519,7 +530,7 @@ class Register_Teacher1(MDScreen):
         layout.add_widget(card)
         self.add_widget(layout)
 
-class Register_Teacher2(MDScreen):
+class Register_Teacher2(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -550,36 +561,56 @@ class Register_Teacher2(MDScreen):
             size_hint=(1, None),
         )
 
-        email_field = MDTextField(
+        self.email_field = MDTextField(
             hint_text="Email",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(email_field)
+        text_fields_box.add_widget(self.email_field)
 
-        password_field = MDTextField(
+        self.password_field = MDTextField(
             hint_text="Password",
             password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(password_field)
+        text_fields_box.add_widget(self.password_field)
 
-        confirm_password_field = MDTextField(
+        self.confirm_password_field = MDTextField(
             hint_text="Confirm Password",
             password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold"
         )
-        text_fields_box.add_widget(confirm_password_field)
+        text_fields_box.add_widget(self.confirm_password_field)
 
         card.add_widget(text_fields_box)
 
-        def switch_to_login_screen(instance):
-            self.manager.current = "Login"
+        def submit_info_teacher2(instance):
+            email = self.email_field.text
+            password = self.password_field.text
+            confirm_password = self.confirm_password_field.text
+
+            self.registration_data.update({"email": email})
+            self.registration_data.update({"password": password})
+
+            if password != confirm_password:
+                toast("Passwords do not match")
+            if not (email and password and confirm_password):
+                toast("Please fill up the missing fields")
+            else:
+                self.user_controller.register_teacher(
+                first_name=self.registration_data.get("first_name"),
+                last_name=self.registration_data.get("last_name"),
+                teacher_id=self.registration_data.get("teacher_id"),
+                email=email,
+                password=password
+                )
+                toast("Registered successfully")
+                self.manager.current = "Login"
 
         register_button = MDRaisedButton(
             text="Register",
@@ -589,8 +620,11 @@ class Register_Teacher2(MDScreen):
             pos_hint={"center_x": 0.5},
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
-        register_button.bind(on_release=switch_to_login_screen)
+        register_button.bind(on_release=submit_info_teacher2)
         card.add_widget(register_button)
+
+        def switch_to_login_screen(instance):
+            self.manager.current = "Login"
 
         login_button = MDIconButton(
             icon="close-circle",
