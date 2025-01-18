@@ -63,6 +63,49 @@ class UserModel:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
+    def login_checker(self, email, password):
+        try:
+            # Check in the teacher table
+            teacher_login_response = self.client.table("teacher_table").select("*").eq("email", email).execute()
+
+            if teacher_login_response.data:
+                # If a teacher is found, verify the password
+                hashed_password = teacher_login_response.data[0].get("password")
+                if self.verify_password(password, hashed_password):
+                    last_name = teacher_login_response.data[0].get("last_name")
+                    return {
+                        "status": "found",
+                        "role": "teacher",
+                        "message": f"Welcome, {last_name}",
+                        "data": teacher_login_response.data
+                    }
+                else:
+                    return {"status": "not_found", "message": "Incorrect Email or Password."}
+
+            # Check in the student table
+            student_login_response = self.client.table("student_table").select("*").eq("email", email).execute()
+
+            if student_login_response.data:
+                # If a student is found, verify the password
+                hashed_password = student_login_response.data[0].get("password")
+                if self.verify_password(password, hashed_password):
+                    last_name = student_login_response.data[0].get("last_name")
+                    return {
+                        "status": "found",
+                        "role": "student",
+                        "message": f"Welcome, {last_name}",
+                        "data": student_login_response.data
+                    }
+                else:
+                    return {"status": "not_found", "message": "Incorrect Email or Password."}
+
+            # If no user is found in both tables
+            return {"status": "not_found", "message": "Incorrect Email or Password."}
+
+        except Exception as e:
+            # Log the exception here
+            return {"status": "error", "message": str(e)}
+
     def check_teacher(self, field, value):
         try:
             response = self.client.table("teacher_table").select("*").eq(field, value).execute()

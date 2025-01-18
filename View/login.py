@@ -1,13 +1,12 @@
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
+from kivymd.toast import toast
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDRaisedButton, MDFlatButton, MDTextButton
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from Controller.user_controller import UserController
-from kivymd.uix.dialog import MDDialog
-
 
 class Login(MDScreen):
     def __init__(self, **kwargs):
@@ -91,21 +90,24 @@ class Login(MDScreen):
         card.add_widget(forgot_password_button)
 
         # Login Functionality
-        def login_user(instance):
-            email = self.email_field.text.strip()
-            password = self.password_field.text.strip()
+        def login_checker_ui(instance):
+            email = self.email_field.text
+            password = self.password_field.text
 
             if not email or not password:
-                self.show_dialog("Error", "Please enter both email and password.")
-                return
-
-            result = self.UserController.login_account(email, password)
-
-            if result["status"] == "success":
-                self.show_dialog("Success", result["message"])
-                self.manager.current = "home"
+                toast("Please enter both email and password.")
             else:
-                self.show_dialog("Login Failed", result["message"])
+                result = self.UserController.login_account(email, password)
+                if result["status"] == "success":
+                    print(f"Login result: {result}")
+                    toast(result.get("message"))
+                    if result["role"] == "student":
+                        print(f"Login result: {result}")
+                        self.manager.current = "Home_Student"
+                    else:
+                        self.manager.current = "Home_Teacher"
+                else:
+                    toast(result.get("message"))
 
         login_button = MDRaisedButton(
             text="Login",
@@ -115,7 +117,7 @@ class Login(MDScreen):
             text_color=[1, 1, 1, 1],
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
-        login_button.bind(on_release=login_user)
+        login_button.bind(on_release=login_checker_ui)
         card.add_widget(login_button)
 
         def switch_to_register_screen(instance):
@@ -134,9 +136,3 @@ class Login(MDScreen):
         layout.add_widget(card)
 
         self.add_widget(layout)
-
-    def show_dialog(self, title, message):
-        if hasattr(self, "dialog") and self.dialog:
-            self.dialog.dismiss()
-        self.dialog = MDDialog(title=title, text=message, size_hint=(0.8, None))
-        self.dialog.open()

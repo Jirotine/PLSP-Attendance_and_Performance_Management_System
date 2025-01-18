@@ -3,7 +3,7 @@ from kivy.core.window import Window
 from kivymd.uix.screenmanager import ScreenManager
 from View.login import Login
 from View.register import Register_Student1, Register_Student2, Registration_Type, Register_Teacher1, Register_Teacher2
-from View.home import Home_Student
+from View.home_page import Home_Student, Home_Teacher
 from View.forgot_password import Forgot_Password, Forgot_Password2, Forgot_Password3
 
 class MainApp(MDApp):
@@ -25,7 +25,9 @@ class MainApp(MDApp):
 
         screen_manager.add_widget(Register_Teacher2(name="Register_Teacher2"))
 
-        screen_manager.add_widget(Home_Student(name="home"))
+        screen_manager.add_widget(Home_Student(name="Home_Student"))
+
+        screen_manager.add_widget(Home_Teacher(name="Home_Teacher"))
 
         screen_manager.add_widget(Forgot_Password(name="forgot_password"))
 

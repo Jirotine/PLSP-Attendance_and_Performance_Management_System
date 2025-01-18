@@ -78,11 +78,15 @@ class UserController:
         return {"status": "success", "message": "Teacher registered successfully!"}
 
     def login_account(self, email, password):
-        user = self.model.check_student(email)
-        if not user:
-            return {"status": "fail", "message": "User not found"}
+        user = self.model.login_checker(email, password)
 
-        hashed_password = user[0].get("password")
+        if user.get("status") != "found":
+            return {"status": "fail", "message": user.get("message", "User not found")}
+
+        hashed_password = user["data"][0].get("password")
         if self.model.verify_password(password, hashed_password):
-            return {"status": "success", "message": "Login successful!"}
+            # Use the message from `login_checker` directly
+            return {"status": "success", "message": user["message"], "role": user["role"]}
+
         return {"status": "fail", "message": "Invalid email or password"}
+
