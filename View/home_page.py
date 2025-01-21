@@ -349,12 +349,14 @@ class Home_Student(MDScreen):
         
         for code in class_codes:
             # Query to fetch the class name by class_code
-            response = self.client.table("classes").select("class_name,class_code").eq("id", code).execute()
+            response = self.client.table("classes").select("id, class_name,class_code").eq("id", code).execute()
             class_name = ""
             class_code = 0
+            class_id = 0
             for res in response.data:
                 class_name = res['class_name']
                 class_code = res['class_code'] 
+                class_id = res['id']
             
             # Create and configure UI widgets
             new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
@@ -370,7 +372,7 @@ class Home_Student(MDScreen):
             
             # Bind the button press event
             new_icon.bind(
-                on_release=lambda instance, code=code, name=class_name: self.open_course_detail(class_code, class_name)
+                on_release=lambda instance, code=code, name=class_name: self.open_course_detail(class_code, class_name, class_id)
             )
 
             new_label = MDLabel(
@@ -389,7 +391,7 @@ class Home_Student(MDScreen):
             # Add the new layout to the grid
             self.grid_layout.add_widget(new_button_layout)
 
-    def open_course_detail(self, course_code, course_name):
+    def open_course_detail(self, course_code, course_name, class_id):
         print(f"Opening course detail: {course_name} ({course_code})")
         # First, check if the screen already exists
         existing_screen = self.manager.get_screen("CourseDetail") if self.manager.has_screen("CourseDetail") else None
@@ -403,7 +405,8 @@ class Home_Student(MDScreen):
             course_screen = CourseDetail(
                 name="CourseDetail",
                 course_code=course_code,
-                course_name=course_name
+                course_name=course_name,
+                class_id = class_id
             )
             self.manager.add_widget(course_screen)
         
