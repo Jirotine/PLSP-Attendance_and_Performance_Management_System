@@ -2,7 +2,7 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
 from kivymd.uix.textfield import MDTextField
-from kivymd.uix.button import MDRectangleFlatButton
+from kivymd.uix.button import MDRaisedButton
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
@@ -60,7 +60,7 @@ class Forgot_Password(MDScreen):
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
-        login_button = MDRectangleFlatButton(
+        login_button = MDRaisedButton(
             text="< Back to Login",
             size_hint=(1, None),
             height="50dp",
@@ -71,9 +71,10 @@ class Forgot_Password(MDScreen):
         button_layout.add_widget(login_button)
 
         def switch_to_forgot_password2_screen(instance):
+            self.manager.add_widget(Forgot_Password2(name="forgot_password2"))
             self.manager.current = "forgot_password2"
 
-        submit_button = MDRectangleFlatButton(
+        submit_button = MDRaisedButton(
             text="Send Code",
             size_hint=(1, None),
             height="50dp",
@@ -140,23 +141,11 @@ class Forgot_Password2(MDScreen):
             pos_hint={"center_x": 0.5}
         )
 
-        def switch_to_login_screen(instance):
-            self.manager.current = "Login"
-
-        login_button = MDRectangleFlatButton(
-            text="< Back to Login",
-            size_hint=(1, None),
-            height="50dp",
-            pos_hint={"center_x": 0.5},
-            font_name="assets/fonts/Uni Sans Heavy.otf",
-        )
-        login_button.bind(on_release=switch_to_login_screen)
-        button_layout.add_widget(login_button)
-
         def switch_to_forgot_password3_screen(instance):
+            self.manager.add_widget(Forgot_Password3(name="forgot_password3"))
             self.manager.current = "forgot_password3"
 
-        submit_button = MDRectangleFlatButton(
+        submit_button = MDRaisedButton(
             text="Submit Code",
             size_hint=(1, None),
             height="50dp",
@@ -228,7 +217,7 @@ class Forgot_Password3(MDScreen):
         def switch_to_login_screen(instance):
             self.manager.current = "Login"
 
-        submit_button = MDRectangleFlatButton(
+        submit_button = MDRaisedButton(
             text="Submit",
             size_hint=(1, None),
             height="50dp",

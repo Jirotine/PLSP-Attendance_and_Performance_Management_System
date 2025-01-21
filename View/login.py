@@ -7,10 +7,16 @@ from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from Controller.user_controller import UserController
+from session_manager import SessionManager
+from View.home_page import Home_Student, Home_Teacher
+from View.forgot_password import Forgot_Password
+from View.register import Registration_Type
 
 class Login(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.session = SessionManager()
 
         self.UserController = UserController()
 
@@ -76,6 +82,7 @@ class Login(MDScreen):
         card.add_widget(text_fields_box)
 
         def switch_to_forgot_password_screen(instance):
+            self.manager.add_widget(Forgot_Password(name="forgot_password"))
             self.manager.current = "forgot_password"
 
         forgot_password_button = MDTextButton(
@@ -99,13 +106,31 @@ class Login(MDScreen):
             else:
                 result = self.UserController.login_account(email, password)
                 if result["status"] == "success":
-                    print(f"Login result: {result}")
                     toast(result.get("message"))
-                    if result["role"] == "student":
-                        print(f"Login result: {result}")
+                    full_name = result.get("full_name")
+                    role = result.get("role")
+                    student_id = result.get("student_id")
+                    teacher_id = result.get("teacher_id")  # Get teacher_id for teachers
+
+                    if full_name:
+                        self.session.set("full_name", full_name)
+                    if role:
+                        self.session.set("role", role)
+                    if student_id:
+                        self.session.set("student_id", student_id)
+                    if teacher_id:
+                        self.session.set("teacher_id", teacher_id)  # Store teacher_id in session
+
+                    if role == "student":
+                        self.manager.add_widget(Home_Student(name="Home_Student"))
                         self.manager.current = "Home_Student"
                     else:
+                        self.manager.add_widget(Home_Teacher(name="Home_Teacher"))
                         self.manager.current = "Home_Teacher"
+
+                    # Clear the fields after successful login
+                    self.email_field.text = ""
+                    self.password_field.text = ""
                 else:
                     toast(result.get("message"))
 
@@ -121,6 +146,7 @@ class Login(MDScreen):
         card.add_widget(login_button)
 
         def switch_to_register_screen(instance):
+            self.manager.add_widget(Registration_Type(name="Registration_Type"))
             self.manager.current = "Registration_Type"
 
         register_button = MDFlatButton(

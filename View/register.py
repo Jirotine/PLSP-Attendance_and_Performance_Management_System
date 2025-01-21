@@ -1,4 +1,3 @@
-from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
 from kivymd.toast import toast
 from kivymd.uix.textfield import MDTextField
@@ -8,15 +7,25 @@ from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.boxlayout import BoxLayout
 from Controller.user_controller import UserController
+from kivymd.uix.screen import MDScreen
 
 class BaseRegistrationScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.user_controller = UserController()
-        self.registration_data = {
-        }
+        self.registration_data = {}
 
-class Registration_Type(MDScreen):
+    def reset_fields(self):
+        # Reset all MDTextField widgets on the screen
+        for field in self.get_widgets_of_type(MDTextField):
+            field.text = ""
+
+    def get_widgets_of_type(self, widget_type):
+        return [widget for widget in self.walk() if isinstance(widget, widget_type)]
+
+# In your screens where you have the login button and need to reset fields
+
+class Registration_Type(BaseRegistrationScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -72,6 +81,7 @@ class Registration_Type(MDScreen):
         card.add_widget(register_button)
 
         def switch_to_login_screen(instance):
+            self.user_type.text="Select User Type"
             self.manager.current = "Login"
 
         login_button = MDIconButton(
@@ -94,9 +104,13 @@ class Registration_Type(MDScreen):
 
     def go_to_next_screen(self, instance):
         if self.user_type.text == "Student":
+            self.manager.add_widget(Register_Student1(name="Register_Student1"))
             self.manager.current = "Register_Student1"
+            self.user_type.text="Select User Type"
         elif self.user_type.text == "Teacher":
+            self.manager.add_widget(Register_Teacher1(name="Register_Teacher1"))
             self.manager.current = "Register_Teacher1"
+            self.user_type.text="Select User Type"
         else:
             toast("Please select a user type!")
 
@@ -177,6 +191,7 @@ class Register_Student1(BaseRegistrationScreen):
                     if result.get("status") == "fail":
                         toast(result.get("message"))
                     else:
+                        self.manager.add_widget(Register_Student2(name="Register_Student2"))
                         self.manager.current = "Register_Student2"
                         self.manager.get_screen("Register_Student2").registration_data = self.registration_data
 
@@ -192,6 +207,7 @@ class Register_Student1(BaseRegistrationScreen):
         card.add_widget(register_button)
 
         def switch_to_login_screen(instance):
+            self.reset_fields()  # Clear the fields before switching
             self.manager.current = "Login"
 
         login_button = MDIconButton(
@@ -294,9 +310,6 @@ class Register_Student2(BaseRegistrationScreen):
                     toast("Registration Successful")
                     self.manager.current = "Login"
 
-        def switch_to_login_screen(instance):
-            self.manager.current = "Login"
-
         register_button = MDRaisedButton(
             text="Register",
             size_hint=(1, None),
@@ -307,6 +320,10 @@ class Register_Student2(BaseRegistrationScreen):
         )
         register_button.bind(on_release=submit_info2)
         card.add_widget(register_button)
+
+        def switch_to_login_screen(instance):
+            self.reset_fields()
+            self.manager.current = "Login"
 
         login_button = MDIconButton(
             icon="close-circle",
@@ -321,6 +338,9 @@ class Register_Student2(BaseRegistrationScreen):
 
         layout.add_widget(card)
         self.add_widget(layout)
+
+# Apply similar changes to Register_Teacher1 and Register_Teacher2
+
 
 class Register_Teacher1(BaseRegistrationScreen):
     def __init__(self, **kwargs):
@@ -414,6 +434,7 @@ class Register_Teacher1(BaseRegistrationScreen):
         card.add_widget(register_button)
 
         def switch_to_login_screen(instance):
+            self.reset_fields()
             self.manager.current = "Login"
 
         login_button = MDIconButton(
@@ -528,6 +549,7 @@ class Register_Teacher2(BaseRegistrationScreen):
         card.add_widget(register_button)
 
         def switch_to_login_screen(instance):
+            self.reset_fields()
             self.manager.current = "Login"
 
         login_button = MDIconButton(
