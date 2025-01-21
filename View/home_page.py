@@ -30,9 +30,13 @@ class Home_Student(MDScreen):
 
         self.session = SessionManager()
 
+        self.student_id = self.session.get('student_id')
+
         full_name = self.session.get("full_name", "Guest")
         if full_name == "Guest":
             print("Warning: full_name not set in session, defaulting to 'Guest'")
+
+
 
         background = Image(
             source="assets/background.png",
@@ -196,7 +200,7 @@ class Home_Student(MDScreen):
                     title="ADD CLASS",
                     type="custom",
                     content_cls=MDTextField(
-                        hint_text="Enter Class Name",
+                        hint_text="Enter Class Code",
                         font_name="assets/fonts/Uni Sans Heavy.otf",
                         mode="rectangle",
                     ),
@@ -213,11 +217,13 @@ class Home_Student(MDScreen):
                             theme_text_color="Custom",
                             text_color=(0, 0.6, 0, 1),
                             font_name="assets/fonts/Uni Sans Heavy.otf",
-                            on_release=lambda x: add_class(self.dialog.content_cls.text)
+                            on_release=lambda x: self.add_class(self.dialog.content_cls.text)  # Correctly reference self.add_class
                         ),
                     ],
                 )
             self.dialog.open()
+
+        self.display_student_classes(self.student_id)
 
         logout_icon = MDIconButton(
             icon="logout-variant",
@@ -226,6 +232,8 @@ class Home_Student(MDScreen):
             icon_size="30dp",
         )
         logout_icon.bind(on_release=logout)
+
+
 
         add_class_button = MDIconButton(
             icon="plus-box",
@@ -258,6 +266,7 @@ class Home_Student(MDScreen):
             theme_text_color="Custom",
             text_color=[0, 0.6, 0, 1],
             font_style="H5",
+            font_name="assets/fonts/Uni Sans Heavy.otf",
             bold=True,
             size_hint_y=None,
             height="40dp"
@@ -269,73 +278,84 @@ class Home_Student(MDScreen):
         
         # Grid layout for course tiles (2 columns)
         self.grid_layout = GridLayout(
-            cols=2,
+            cols=3,
             spacing=15,
             size_hint_y=None,
             padding=[10, 10, 10, 10]
         )
         self.grid_layout.bind(minimum_height=self.grid_layout.setter('height'))
 
-        # Sample course data
-        courses = [
-            {"code": "GE108", "name": "Programming"},
-            {"code": "MTH201", "name": "Calculus"},
-            {"code": "PHY301", "name": "Physics"},
-            {"code": "ENG102", "name": "Writing"},
-        ]
-
-        # Create course tiles
-        for course in courses:
-            course_tile = MDCard(
-                orientation="vertical",
-                size_hint_y=None,
-                height="120dp",
-                radius=[10, 10, 10, 10],
-                padding=10,
-                md_bg_color=[0, 0.6, 0, 0.8],  # Green background
-                elevation=2,
-                ripple_behavior=True  # Enable touch feedback
-            )
-            
-            # Course code
-            code_label = MDLabel(
-                text=course["code"],
-                theme_text_color="Custom",
-                text_color=[1, 1, 1, 1],
-                halign="center",
-                font_style="H6",
-                bold=True,
-                size_hint_y=None,
-                height="30dp"
-            )
-            course_tile.add_widget(code_label)
-            
-            # Course name
-            name_label = MDLabel(
-                text=course["name"],
-                theme_text_color="Custom",
-                text_color=[1, 1, 1, 1],
-                halign="center",
-                font_style="Body2",
-                size_hint_y=None,
-                height="30dp"
-            )
-            course_tile.add_widget(name_label)
-            
-            # Bind the touch event
-            course_tile.bind(on_release=lambda x, code=course["code"], name=course["name"]: 
-                open_course_detail(code, name))
-            
-            self.grid_layout.add_widget(course_tile)
-
-        # Add this method to the Home_Student class:
         scroll_view.add_widget(self.grid_layout)
         card_user_class.add_widget(scroll_view)
 
         self.dialog = None
 
-        def add_class(class_name):
-            if class_name.strip():
+        layout.add_widget(card_user_class)
+
+        # Add the main layout to the screen
+        self.add_widget(layout)
+
+    def add_class(self, class_code):
+        if class_code.strip():
+            # Call the controller to get the class details from Supabase
+            class_data = self.class_controller.fetch_class_by_code(class_code)
+
+            if class_data:
+                id = class_data['id']
+                class_name = class_data['class_name']
+
+                # Get student_id from the session
+                student_id = self.session.get("student_id", "Unknown ID")
+                if student_id == "Unknown ID":
+                    print("Warning: student_id not set in session, defaulting to 'Unknown ID'")
+
+                # Call the controller to add the student to the class in Supabase
+                self.class_controller.enroll_student_in_class(student_id, id)
+
+                # Create and add the button for the new class
+                new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
+
+                new_icon = MDIconButton(
+                    icon="notebook",
+                    theme_text_color="Custom",
+                    text_color=(0, 0.6, 0, 1),
+                    icon_size="50dp",
+                    pos_hint={"center_x": 0.5, "top": 1},
+                )
+                new_label = MDLabel(
+                    text=class_name,  # Use the class_name fetched from Supabase
+                    halign="center",
+                    size_hint=(1, None),
+                    height="20dp",
+                    bold=True,
+                    font_style="Caption",
+                    pos_hint={"center_x": 0.5, "y": 0},
+                )
+
+                # Add the icon and label to the layout
+                new_button_layout.add_widget(new_icon)
+                new_button_layout.add_widget(new_label)
+
+                # Add the new layout to the grid
+                self.grid_layout.add_widget(new_button_layout)
+
+            else:
+                print(f"No class found for class_code: {class_code}")
+
+            self.dialog.dismiss()
+
+    def display_student_classes(self, student_id):
+        classes = self.class_controller.fetch_classes_for_student(student_id)
+
+        if "error" in classes:
+            print(f"Error: {classes['error']}")
+        else:
+            # Clear previous widgets in the grid layout if necessary
+            self.grid_layout.clear_widgets()
+
+            for class_info in classes.get("classes", []):
+                class_name = class_info  # Since classes is now a list of class names
+
                 new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
 
                 new_icon = MDIconButton(
@@ -358,15 +378,11 @@ class Home_Student(MDScreen):
                 new_button_layout.add_widget(new_icon)
                 new_button_layout.add_widget(new_label)
 
+                # Use a lambda to capture the current class_name and class_code
+                new_button_layout.bind(
+                    on_release=lambda instance, name=class_name: self.go_to_class_page(name, "Unknown Code"))
+
                 self.grid_layout.add_widget(new_button_layout)
-
-            self.dialog.dismiss()
-
-        layout.add_widget(card_user_class)
-
-        # Add the main layout to the screen
-        self.add_widget(layout)
-
 
 class Home_Teacher(MDScreen):
     def __init__(self, **kwargs):

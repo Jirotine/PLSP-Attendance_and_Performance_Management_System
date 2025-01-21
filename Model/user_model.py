@@ -48,26 +48,28 @@ class UserModel:
         except Exception as e:
             return {"error": str(e)}
 
-    def check_student_record(self, student_id, last_name):
+    def check_student_record(self, student_id, last_name, first_name):
         try:
             response = (
                 self.client.table("student_records")
                 .select("*")
                 .eq("student_id", student_id)
                 .eq("last_name", last_name)
+                .eq("first_name", first_name)
                 .execute()
             )
             return response.data
         except Exception as e:
             return {"error": str(e)}
 
-    def check_teacher_record(self, last_name, teacher_id):
+    def check_teacher_record(self, last_name, teacher_id, first_name):
         try:
             response = (
                 self.client.table("teacher_records")
                 .select("*")
                 .eq("teacher_id", teacher_id)
                 .eq("last_name", last_name)
+                .eq("first_name", first_name)
                 .execute()
             )
             return response.data

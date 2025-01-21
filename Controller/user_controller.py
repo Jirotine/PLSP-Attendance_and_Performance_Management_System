@@ -4,9 +4,18 @@ class UserController:
     def __init__(self):
         self.model = UserModel()
 
-    def validate_student(self, last_name, student_id):
+    def validate_student(self, first_name,last_name, student_id):
         try:
-            student = self.model.check_student_record(student_id, last_name)
+            student = self.model.check_student_record(student_id, last_name, first_name)
+            if not student:
+                return {"status": "fail", "message": "Student not found in records. Registration denied."}
+            return {"status": "success"}
+        except Exception as e:
+            return {"status": "fail", "message": f"An error occurred: {str(e)}"}
+
+    def validate_teacher(self, last_name, teacher_id, first_name):
+        try:
+            student = self.model.check_student_record(teacher_id, last_name, first_name)
             if not student:
                 return {"status": "fail", "message": "Student not found in records. Registration denied."}
             return {"status": "success"}

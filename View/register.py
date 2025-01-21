@@ -187,7 +187,7 @@ class Register_Student1(BaseRegistrationScreen):
                 if result.get("status") == "fail":
                     toast(result.get("message"))
                 else:
-                    result = self.user_controller.validate_student(last_name, student_id)
+                    result = self.user_controller.validate_student(last_name, student_id, first_name)
                     if result.get("status") == "fail":
                         toast(result.get("message"))
                     else:
@@ -416,7 +416,7 @@ class Register_Teacher1(BaseRegistrationScreen):
                 if result.get("status") == "fail":
                     toast(result.get("message"))
                 else:
-                    result = self.user_controller.validate_teacher(last_name, teacher_id)
+                    result = self.user_controller.validate_teacher(last_name, teacher_id, first_name)
                     if result.get("status") == "fail":
                         toast(result.get("message"))
                     else:

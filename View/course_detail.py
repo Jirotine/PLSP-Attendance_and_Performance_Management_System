@@ -385,8 +385,7 @@ class CourseDetail(MDScreen):
             spacing="10dp"
         )
         activities_layout.bind(minimum_height=activities_layout.setter('height'))
-        
-        # Dummy activities
+
         activities = [
             {"name": "Quiz 1: Introduction", "done": True},
             {"name": "Assignment 1: Basic Concepts", "done": False},

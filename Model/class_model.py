@@ -7,8 +7,33 @@ class ClassModel:
         self.client = get_supabase_client()
 
     def generate_class_code(self):
-        # Generate a unique 6-character alphanumeric code
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+    def get_class_by_code(self, class_code):
+        response = self.client.table("classes").select("id", "class_name").eq("class_code",
+                                                                                      class_code).execute()
+        if response.data:
+            return response.data[0]
+        else:
+            return None
+
+    def add_student_to_class(self, student_id, class_id):
+        existing_entry = self.client.table("student_classes").select("*").eq("student_id", student_id).eq("class_id",
+                                                                                                          class_id).execute()
+
+        if existing_entry.data:
+            print(f"Class {class_id} already added for student {student_id}")
+        else:
+            # Proceed to insert the record if not already present
+            response = self.client.table("student_classes").insert({
+                "student_id": student_id,
+                "class_id": class_id
+            }).execute()
+
+            if response.data:
+                print(f"Successfully added student {student_id} to class {class_id}")
+            else:
+                print(f"Error: {response.error}")
 
     def add_class(self, class_name, teacher_id):
         try:
@@ -53,6 +78,18 @@ class ClassModel:
                 raise Exception(f"Failed to fetch classes: {response.error or 'No classes found.'}")
 
             return response.data
+        except Exception as e:
+            return {"error": str(e)}
+
+    def get_classes_by_student(self, student_id):
+        try:
+            response = self.client.table("student_classes").select("*").eq("student_id", student_id).eq("id", id).execute()
+
+            if response.data is None or isinstance(response.data, list) and not response.data:
+                raise Exception(f"Failed to fetch classes: {response.error or 'No classes found.'}")
+
+            return response.data
+
         except Exception as e:
             return {"error": str(e)}
 

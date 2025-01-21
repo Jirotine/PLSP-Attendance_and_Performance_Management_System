@@ -98,7 +98,7 @@ class ClassPage_Teacher(MDScreen):
         course_label_class_layout.add_widget(course_code_class_label)
 
         course_name_class_label = MDRaisedButton(
-            text=class_name,  # Use the class name from the session
+            text=class_name,
             elevation=0,
             size_hint=(0.5, 1),
             pos_hint={"center_x": 0.5},
@@ -190,22 +190,4 @@ class ClassPage_Student(MDScreen):
 
         # Add the main layout to the screen
         self.add_widget(layout)
-<<<<<<< Updated upstream
 
-    # def create_graph(self):
-    #     # Example data for the graph
-    #     x = [1, 2, 3, 4, 5]
-    #     y = [5, 3, 7, 10, 2]
-    #
-    #     # Create a Matplotlib figure and axis
-    #     fig, ax = plt.subplots()
-    #     ax.plot(x, y, label="Sample Data", marker="o")
-    #     ax.set_title("Performance Graph")
-    #     ax.set_xlabel("Time")
-    #     ax.set_ylabel("Score")
-    #     ax.legend()
-    #
-    #     # Return the Kivy widget for the graph
-    #     return FigureCanvasKivyAgg(fig)
-=======
->>>>>>> Stashed changes
