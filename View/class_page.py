@@ -21,10 +21,9 @@ class ClassPage_Teacher(MDScreen):
         self.class_controller = ClassController()
         self.session = SessionManager()
 
-        # Get the user's full name from the session (or set to 'Guest')
+        # Get the class information from the session
         class_name = self.session.get("class_name", "Class")
-        if class_name == "Guest":
-            print("Warning: class_name not set in session, defaulting to 'Class'")
+        class_code = self.session.get("class_code", "Code")
 
         # Background image setup
         background = Image(
@@ -47,14 +46,6 @@ class ClassPage_Teacher(MDScreen):
         )
         layout.add_widget(card_class)
 
-        back_button = MDIconButton(
-            icon="arrow-left",
-            icon_color=[0, 0.6, 0, 0],
-            size_hint=(None, None),
-            pos_hint={"x": 0.06, "y": 0.77},
-        )
-        layout.add_widget(back_button)
-
         # Course label layout
         course_label_layout = BoxLayout(
             orientation="vertical",
@@ -76,7 +67,7 @@ class ClassPage_Teacher(MDScreen):
         course_label_layout.add_widget(course_code_label)
 
         course_class_label = MDRaisedButton(
-            text="KJD980",
+            text=class_code,  # Use the class code from the session
             elevation=0,
             size_hint=(0.5, 1),
             pos_hint={"center_x": 0.5},
@@ -107,7 +98,7 @@ class ClassPage_Teacher(MDScreen):
         course_label_class_layout.add_widget(course_code_class_label)
 
         course_name_class_label = MDRaisedButton(
-            text="Ethics",
+            text=class_name,  # Use the class name from the session
             elevation=0,
             size_hint=(0.5, 1),
             pos_hint={"center_x": 0.5},
@@ -116,69 +107,6 @@ class ClassPage_Teacher(MDScreen):
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
         course_label_class_layout.add_widget(course_name_class_label)
-
-        # Attendance layout
-        course_attendance_layout = BoxLayout(
-            orientation="vertical",
-            size_hint=(1, 1),
-            height="50dp",
-            spacing="10dp",
-        )
-        card_class.add_widget(course_attendance_layout)
-
-        course_attendance_label = MDLabel(
-            text="No. of Students",
-            halign="center",
-            font_style="H6",
-            theme_text_color="Custom",
-            text_color=[0, 0.6, 0, 1],
-            font_name="Roboto-Bold",
-            bold=True,
-        )
-        course_attendance_layout.add_widget(course_attendance_label)
-
-        course_attendance_count = MDRaisedButton(
-            text="45",
-            elevation=0,
-            size_hint=(0.5, 1),
-            pos_hint={"center_x": 0.5},
-            theme_text_color="Custom",
-            text_color=[1, 1, 1, 1],
-            font_name="assets/fonts/Uni Sans Heavy.otf",
-        )
-        course_attendance_layout.add_widget(course_attendance_count)
-
-        # Buttons layout
-        class_button_layout = BoxLayout(
-            orientation="horizontal",
-            size_hint=(1, 1),
-            height="50dp",
-            spacing="20dp",
-        )
-        card_class.add_widget(class_button_layout)
-
-        course_button_attendance = MDRaisedButton(
-            text="Attendance",
-            size_hint=(0.5, 0.7),
-            height="40dp",
-            pos_hint={"center_x": 0.5},
-            theme_text_color="Custom",
-            text_color=[1, 1, 1, 1],
-            font_name="assets/fonts/Uni Sans Heavy.otf",
-        )
-        class_button_layout.add_widget(course_button_attendance)
-
-        course_button_activity = MDRaisedButton(
-            text="Activity",
-            elevation=0,
-            size_hint=(0.5, 0.7),
-            height="40dp",
-            pos_hint={"center_x": 0.5},
-            theme_text_color="Custom",
-            text_color=[1, 1, 1, 1],
-            font_name="assets/fonts/Uni Sans Heavy.otf",
-        )
-        class_button_layout.add_widget(course_button_activity)
 
         # Add the layout to the screen
         self.add_widget(layout)
@@ -203,16 +131,12 @@ class ClassPage_Student(MDScreen):
         card_user_profile = MDCard(
             orientation="vertical",
             size_hint=(0.9, None),
-            height="400dp",  # Adjusted height for the graph
+            height="250dp",  # Adjusted height for the graph
             pos_hint={"center_x": 0.5, "center_y": 0.75},
             radius=[15, 15, 15, 15],
             padding=[20, 20, 20, 20],
             spacing="15dp"
         )
-
-        # Adding a graph to the profile card
-        # graph = self.create_graph()
-        # card_user_profile.add_widget(graph)
 
         # Icon layout
         icon_layout = BoxLayout(
@@ -266,6 +190,7 @@ class ClassPage_Student(MDScreen):
 
         # Add the main layout to the screen
         self.add_widget(layout)
+<<<<<<< Updated upstream
 
     # def create_graph(self):
     #     # Example data for the graph
@@ -282,3 +207,5 @@ class ClassPage_Student(MDScreen):
     #
     #     # Return the Kivy widget for the graph
     #     return FigureCanvasKivyAgg(fig)
+=======
+>>>>>>> Stashed changes

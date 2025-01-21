@@ -12,6 +12,7 @@ from kivy.uix.popup import Popup
 from kivy.core.image import Image as CoreImage
 from io import BytesIO
 import qrcode
+from View.class_page import ClassPage_Teacher
 from Controller.class_controller import ClassController
 from session_manager import SessionManager
 from kivy.uix.boxlayout import BoxLayout
@@ -556,7 +557,6 @@ class Home_Teacher(MDScreen):
                 if "error" in result:
                     toast(f"{result['error']}")
                 else:
-
                     # Add the new class to the grid dynamically
                     new_button_layout = FloatLayout(size_hint=(None, None), size=(130, 100))
 
@@ -580,6 +580,9 @@ class Home_Teacher(MDScreen):
                     new_button_layout.add_widget(new_icon)
                     new_button_layout.add_widget(new_label)
 
+                    # Bind the button to navigate to ClassPage_Teacher
+                    new_button_layout.bind(on_release=lambda instance: self.go_to_class_page(class_name, result))
+
                     self.grid_layout.add_widget(new_button_layout)
 
             self.dialog.dismiss()
@@ -588,6 +591,14 @@ class Home_Teacher(MDScreen):
 
         # Add the main layout to the screen
         self.add_widget(layout)
+
+    def go_to_class_page(self, class_name, result):
+        # Store class information in the session
+        self.session.set("class_name", class_name)
+        self.session.set("class_code", result)  # Assuming result contains the class code
+
+        # Switch to ClassPage_Teacher
+        self.manager.current = "ClassPage_Teacher"
 
     def display_teacher_classes(self, teacher_id):
         classes = self.class_controller.fetch_classes_for_teacher(teacher_id)
@@ -618,5 +629,8 @@ class Home_Teacher(MDScreen):
 
                 new_button_layout.add_widget(new_icon)
                 new_button_layout.add_widget(new_label)
+
+                # Bind the button to navigate to ClassPage_Teacher
+                new_button_layout.bind(on_release=lambda instance: self.go_to_class_page(class_name, class_info.get("class_code", "Unknown Code")))
 
                 self.grid_layout.add_widget(new_button_layout)

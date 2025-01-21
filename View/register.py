@@ -306,6 +306,7 @@ class Register_Student2(BaseRegistrationScreen):
                         last_name=self.registration_data.get("last_name"),
                         email=email,
                         password=password,
+                        password_code=0000,
                     )
                     toast("Registration Successful")
                     self.manager.current = "Login"
@@ -533,6 +534,7 @@ class Register_Teacher2(BaseRegistrationScreen):
                         last_name=self.registration_data.get("last_name"),
                         email=email,
                         password=password,
+                        password_code=0000,
                     )
                     toast("Registration Successful")
                     self.manager.current = "Login"

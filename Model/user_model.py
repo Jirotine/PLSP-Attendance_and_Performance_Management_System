@@ -1,9 +1,52 @@
 from supabase_manager import get_supabase_client
 import bcrypt
+import random
+import smtplib
+from email.mime.text import MIMEText
 
 class UserModel:
     def __init__(self):
         self.client = get_supabase_client()
+
+    def generate_code(self):
+        return str(random.randint(1000, 9999))
+
+    def send_code_to_email(self, email, code):
+        sender_email = "jiroluismanalo24@gmail.com"
+        sender_password = "onpc xdvm svqx axhb"
+        subject = "Password Recovery Code"
+        body = f"Your password recovery code is: {code}"
+
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = email
+
+        try:
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()  # Upgrade the connection to a secure encrypted SSL/TLS connection
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, msg.as_string())
+            return {"status": "success", "message": "Code sent to email."}
+        except Exception as e:
+            return {"status": "fail", "message": str(e)}
+
+    def request_password_reset(self, email):
+        email_check_result = self.check_email(email)
+        if email_check_result["status"] == "found":
+            code = self.generate_code()
+            self.send_code_to_email(email, code)
+            return {"status": "success", "code": code}  # Store this code temporarily
+        else:
+            return {"status": "fail", "message": "Email not found."}
+
+    def change_password(self, email, new_password):
+        hashed_password = self.hash_password(new_password)
+        try:
+            response = self.client.table("student_table").update({"password": hashed_password}).eq("email", email).execute()
+            return response
+        except Exception as e:
+            return {"error": str(e)}
 
     def check_student_record(self, student_id, last_name):
         try:

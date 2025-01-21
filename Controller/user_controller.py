@@ -41,7 +41,7 @@ class UserController:
         except Exception as e:
             return {"status": "fail", "message": f"An error occurred: {str(e)}"}
 
-    def register_student(self, first_name, last_name, student_id, email, password):
+    def register_student(self, first_name, last_name, student_id, email, password, password_code):
         email_check = self.validate_email(email)
         if email_check["status"] == "fail":
             return email_check
@@ -57,13 +57,14 @@ class UserController:
             "student_id": student_id,
             "email": email,
             "password": hashed_password,
+            "password_code": password_code,
         }
         result = self.model.insert_student(data)
         if "error" in result:
             return {"status": "fail", "message": result["error"]}
         return {"status": "success", "message": "Student registered successfully!"}
 
-    def register_teacher(self, first_name, last_name, teacher_id, email, password):
+    def register_teacher(self, first_name, last_name, teacher_id, email, password, password_code):
         email_check = self.validate_email(email)
         if email_check["status"] == "fail":
             return email_check
@@ -79,11 +80,15 @@ class UserController:
             "teacher_id": teacher_id,
             "email": email,
             "password": hashed_password,
+            "password_code": password_code,
         }
         result = self.model.insert_teacher(data)
         if "error" in result:
             return {"status": "fail", "message": result["error"]}
         return {"status": "success", "message": "Teacher registered successfully!"}
+
+    def request_password_reset(self, email):
+        return self.model.request_password_reset(email)
 
     def login_account(self, email, password):
         user = self.model.login_checker(email, password)

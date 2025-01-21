@@ -1,3 +1,4 @@
+from kivymd.toast import toast
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
@@ -6,6 +7,8 @@ from kivymd.uix.button import MDRaisedButton
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
+from Controller.user_controller import UserController
+
 
 class Forgot_Password(MDScreen):
     def __init__(self, **kwargs):
@@ -90,6 +93,19 @@ class Forgot_Password(MDScreen):
 
         self.add_widget(layout)
 
+        def request_reset_code(instance):
+            email = email_field.text
+            self.email = email  # Store email in the instance attribute
+            result = UserController().request_password_reset(email)
+            if result["status"] == "success":
+                # Store the code in a way that you can access it later for verification
+                self.reset_code = result["code"]
+                print("Code sent to email.")
+            else:
+                print(result["message"])
+
+        submit_button.bind(on_release=request_reset_code)
+
 
 class Forgot_Password2(MDScreen):
     def __init__(self, **kwargs):
@@ -125,13 +141,13 @@ class Forgot_Password2(MDScreen):
         )
         card.add_widget(enter_code)
 
-        code_field = MDTextField(
+        self.code_field = MDTextField(
             hint_text="Code",
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold",
         )
-        card.add_widget(code_field)
+        card.add_widget(self.code_field)
 
         button_layout = BoxLayout(
             orientation="horizontal",
@@ -142,8 +158,13 @@ class Forgot_Password2(MDScreen):
         )
 
         def switch_to_forgot_password3_screen(instance):
-            self.manager.add_widget(Forgot_Password3(name="forgot_password3"))
-            self.manager.current = "forgot_password3"
+            entered_code = self.code_field.text
+            forgot_password_screen = self.manager.get_screen('forgot_password')
+            if entered_code == forgot_password_screen.reset_code:
+                self.manager.add_widget(Forgot_Password3(name="forgot_password3"))
+                self.manager.current = "forgot_password3"
+            else:
+                toast("Invalid Code")
 
         submit_button = MDRaisedButton(
             text="Submit Code",
@@ -160,6 +181,7 @@ class Forgot_Password2(MDScreen):
         layout.add_widget(card)
 
         self.add_widget(layout)
+
 
 class Forgot_Password3(MDScreen):
     def __init__(self, **kwargs):
@@ -195,27 +217,45 @@ class Forgot_Password3(MDScreen):
         )
         card.add_widget(change_password)
 
-
-        password_field = MDTextField(
+        self.password_field = MDTextField(
             hint_text="New Password",
             password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold",
         )
-        card.add_widget(password_field)
+        card.add_widget(self.password_field)
 
-        confirm_password_field = MDTextField(
+        self.confirm_password_field = MDTextField(
             hint_text="Confirm Password",
             password=True,
             size_hint_x=1,
             mode="rectangle",
             font_name="Roboto-Bold",
         )
-        card.add_widget(confirm_password_field)
+        card.add_widget(self.confirm_password_field)
 
-        def switch_to_login_screen(instance):
-            self.manager.current = "Login"
+        def verify_and_submit(instance):
+            new_password = self.password_field.text
+            confirm_password = self.confirm_password_field.text
+            if not new_password or not confirm_password:
+                toast("Fields cannot be empty")
+                return
+            if new_password != confirm_password:
+                toast("Passwords do not match")
+                return
+
+            # Access the email stored in the Forgot_Password screen
+            email = self.manager.get_screen('forgot_password').email
+
+            # Update password in the database
+            result = UserController().model.change_password(email, new_password)
+
+            if hasattr(result, 'status') and result.status == "success":
+                toast("Password updated successfully!")
+                self.manager.current = "Login"
+            else:
+                toast("Failed to update password.")
 
         submit_button = MDRaisedButton(
             text="Submit",
@@ -224,7 +264,7 @@ class Forgot_Password3(MDScreen):
             pos_hint={"center_x": 0.5},
             font_name="assets/fonts/Uni Sans Heavy.otf",
         )
-        submit_button.bind(on_release=switch_to_login_screen)
+        submit_button.bind(on_release=verify_and_submit)
         card.add_widget(submit_button)
 
         layout.add_widget(card)
