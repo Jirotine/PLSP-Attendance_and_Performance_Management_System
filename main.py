@@ -12,9 +12,8 @@ class MainApp(MDApp):
 
         screen_manager = ScreenManager()
 
-        screen_manager.add_widget(ClassPage_Student(name="ClassPage_Student"))
-
-        screen_manager.add_widget(ClassPage_Teacher(name="ClassPage_Teacher"))
+        # screen_manager.add_widget(ClassPage_Student(name="ClassPage_Student"))
+        # screen_manager.add_widget(ClassPage_Teacher(name="ClassPage_Teacher"))
 
         screen_manager.add_widget(Login(name="Login"))
 

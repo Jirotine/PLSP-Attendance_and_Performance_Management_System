@@ -17,6 +17,7 @@ from session_manager import SessionManager
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.toast import toast
 from kivy.graphics import Color, RoundedRectangle
+from View.course_detail import CourseDetail
 
 class Home_Student(MDScreen):
     def __init__(self, **kwargs):
@@ -77,6 +78,14 @@ class Home_Student(MDScreen):
             spacing="10dp",
             pos_hint={"center_x": 0.68},
         )
+        def open_course_detail(course_code, course_name):
+            course_screen = CourseDetail(
+                name="CourseDetail",
+                course_code=course_code,
+                course_name=course_name
+            )
+            self.manager.add_widget(course_screen)
+            self.manager.current = "CourseDetail"
 
         def generate_qr_code(instance):
             student_id = self.session.get("student_id", "Unknown ID")
@@ -241,17 +250,84 @@ class Home_Student(MDScreen):
             padding=[10, 10, 10, 10],
         )
 
-        # ScrollView for the grid of icons
-        scroll_view = ScrollView(size_hint=(1, 1))
-
-        # GridLayout to hold folders/icons
-        self.grid_layout = GridLayout(
-            cols=3,
-            spacing=10,
+        # Title for Courses
+        title_label = MDLabel(
+            text="Courses",
+            halign="center",
+            theme_text_color="Custom",
+            text_color=[0, 0.6, 0, 1],
+            font_style="H5",
+            bold=True,
             size_hint_y=None,
+            height="40dp"
         )
-        self.grid_layout.bind(minimum_height=self.grid_layout.setter("height"))
+        card_user_class.add_widget(title_label)
 
+        # ScrollView for courses
+        scroll_view = ScrollView(size_hint=(1, 1))
+        
+        # Grid layout for course tiles (2 columns)
+        self.grid_layout = GridLayout(
+            cols=2,
+            spacing=15,
+            size_hint_y=None,
+            padding=[10, 10, 10, 10]
+        )
+        self.grid_layout.bind(minimum_height=self.grid_layout.setter('height'))
+
+        # Sample course data
+        courses = [
+            {"code": "GE108", "name": "Programming"},
+            {"code": "MTH201", "name": "Calculus"},
+            {"code": "PHY301", "name": "Physics"},
+            {"code": "ENG102", "name": "Writing"},
+        ]
+
+        # Create course tiles
+        for course in courses:
+            course_tile = MDCard(
+                orientation="vertical",
+                size_hint_y=None,
+                height="120dp",
+                radius=[10, 10, 10, 10],
+                padding=10,
+                md_bg_color=[0, 0.6, 0, 0.8],  # Green background
+                elevation=2,
+                ripple_behavior=True  # Enable touch feedback
+            )
+            
+            # Course code
+            code_label = MDLabel(
+                text=course["code"],
+                theme_text_color="Custom",
+                text_color=[1, 1, 1, 1],
+                halign="center",
+                font_style="H6",
+                bold=True,
+                size_hint_y=None,
+                height="30dp"
+            )
+            course_tile.add_widget(code_label)
+            
+            # Course name
+            name_label = MDLabel(
+                text=course["name"],
+                theme_text_color="Custom",
+                text_color=[1, 1, 1, 1],
+                halign="center",
+                font_style="Body2",
+                size_hint_y=None,
+                height="30dp"
+            )
+            course_tile.add_widget(name_label)
+            
+            # Bind the touch event
+            course_tile.bind(on_release=lambda x, code=course["code"], name=course["name"]: 
+                open_course_detail(code, name))
+            
+            self.grid_layout.add_widget(course_tile)
+
+        # Add this method to the Home_Student class:
         scroll_view.add_widget(self.grid_layout)
         card_user_class.add_widget(scroll_view)
 
