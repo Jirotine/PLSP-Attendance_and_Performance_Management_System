@@ -93,14 +93,6 @@ class Home_Student(MDScreen):
             spacing="10dp",
             pos_hint={"center_x": 0.68},
         )
-        def open_course_detail(course_code, course_name):
-            course_screen = CourseDetail(
-                name="CourseDetail",
-                course_code=course_code,
-                course_name=course_name
-            )
-            self.manager.add_widget(course_screen)
-            self.manager.current = "CourseDetail"
 
         def generate_qr_code(instance):
             student_id = self.session.get("student_id", "Unknown ID")
@@ -340,7 +332,6 @@ class Home_Student(MDScreen):
 
                 # Add the new layout to the grid
                 self.grid_layout.add_widget(new_button_layout)
-
             else:
                 print(f"No class found for class_code: {class_code}")
 
@@ -358,15 +349,17 @@ class Home_Student(MDScreen):
         
         for code in class_codes:
             # Query to fetch the class name by class_code
-            response = self.client.table("classes").select("class_name").eq("id", code).execute()
+            response = self.client.table("classes").select("class_name,class_code").eq("id", code).execute()
             class_name = ""
+            class_code = 0
             for res in response.data:
                 class_name = res['class_name']
+                class_code = res['class_code'] 
             
-            # Extract class_name from response
             # Create and configure UI widgets
             new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
 
+            # Create a button that will handle the touch events
             new_icon = MDIconButton(
                 icon="notebook",
                 theme_text_color="Custom",
@@ -374,8 +367,14 @@ class Home_Student(MDScreen):
                 icon_size="50dp",
                 pos_hint={"center_x": 0.5, "top": 1},
             )
+            
+            # Bind the button press event
+            new_icon.bind(
+                on_release=lambda instance, code=code, name=class_name: self.open_course_detail(class_code, class_name)
+            )
+
             new_label = MDLabel(
-                text=class_name,  # Set the class name
+                text=class_name,
                 halign="center",
                 size_hint=(1, None),
                 height="20dp",
@@ -387,13 +386,31 @@ class Home_Student(MDScreen):
             new_button_layout.add_widget(new_icon)
             new_button_layout.add_widget(new_label)
 
-            # Bind the button action
-            new_button_layout.bind(
-                on_release=lambda instance, name=class_name: self.go_to_class_page(name, code)
-            )
-
             # Add the new layout to the grid
             self.grid_layout.add_widget(new_button_layout)
+
+    def open_course_detail(self, course_code, course_name):
+        print(f"Opening course detail: {course_name} ({course_code})")
+        # First, check if the screen already exists
+        existing_screen = self.manager.get_screen("CourseDetail") if self.manager.has_screen("CourseDetail") else None
+        
+        if existing_screen:
+            # Update existing screen with new details
+            existing_screen.course_code = course_code
+            existing_screen.course_name = course_name
+        else:
+            # Create new screen
+            course_screen = CourseDetail(
+                name="CourseDetail",
+                course_code=course_code,
+                course_name=course_name
+            )
+            self.manager.add_widget(course_screen)
+        
+        # Switch to the course detail screen
+        self.manager.transition.direction = 'left'  # Optional: adds a transition effect
+        self.manager.current = "CourseDetail"
+
                
 class Home_Teacher(MDScreen):
     def __init__(self, **kwargs):
