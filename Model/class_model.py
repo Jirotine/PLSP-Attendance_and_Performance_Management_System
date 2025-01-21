@@ -83,12 +83,11 @@ class ClassModel:
 
     def get_classes_by_student(self, student_id):
         try:
-            response = self.client.table("student_classes").select("*").eq("student_id", student_id).eq("id", id).execute()
-
-            if response.data is None or isinstance(response.data, list) and not response.data:
+            response = self.client.table("student_classes").select("*").eq("student_id", student_id).execute()
+            if response is None or isinstance(response, list) and not response:
                 raise Exception(f"Failed to fetch classes: {response.error or 'No classes found.'}")
 
-            return response.data
+            return response
 
         except Exception as e:
             return {"error": str(e)}

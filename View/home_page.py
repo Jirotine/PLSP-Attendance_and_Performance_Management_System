@@ -1,3 +1,4 @@
+from supabase_manager import get_supabase_client
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
@@ -23,6 +24,15 @@ from View.course_detail import CourseDetail
 class Home_Student(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.client = get_supabase_client()
+        # Grid layout for course tiles (2 columns)
+        self.grid_layout = GridLayout(
+            cols=3,
+            spacing=15,
+            size_hint_y=None,
+            padding=[10, 10, 10, 10]
+        )
+        self.grid_layout.bind(minimum_height=self.grid_layout.setter('height'))
 
         layout = FloatLayout(size_hint=(1, 1))
 
@@ -276,15 +286,7 @@ class Home_Student(MDScreen):
         # ScrollView for courses
         scroll_view = ScrollView(size_hint=(1, 1))
         
-        # Grid layout for course tiles (2 columns)
-        self.grid_layout = GridLayout(
-            cols=3,
-            spacing=15,
-            size_hint_y=None,
-            padding=[10, 10, 10, 10]
-        )
-        self.grid_layout.bind(minimum_height=self.grid_layout.setter('height'))
-
+        
         scroll_view.add_widget(self.grid_layout)
         card_user_class.add_widget(scroll_view)
 
@@ -343,47 +345,56 @@ class Home_Student(MDScreen):
                 print(f"No class found for class_code: {class_code}")
 
             self.dialog.dismiss()
+    def fetch_classes_for_student(self, student_id):
+        response = self.client.table("student_classes").select("*").eq("student_id", student_id).execute()
+        class_codes = []
+        for res in response.data:
+            class_codes.append(res['class_id'])
+        return class_codes
 
     def display_student_classes(self, student_id):
-        classes = self.class_controller.fetch_classes_for_student(student_id)
+        # Fetch class codes for the student
+        class_codes = self.fetch_classes_for_student(student_id)
+        
+        for code in class_codes:
+            # Query to fetch the class name by class_code
+            response = self.client.table("classes").select("class_name").eq("id", code).execute()
+            class_name = ""
+            for res in response.data:
+                class_name = res['class_name']
+            
+            # Extract class_name from response
+            # Create and configure UI widgets
+            new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
 
-        if "error" in classes:
-            print(f"Error: {classes['error']}")
-        else:
-            # Clear previous widgets in the grid layout if necessary
-            self.grid_layout.clear_widgets()
+            new_icon = MDIconButton(
+                icon="notebook",
+                theme_text_color="Custom",
+                text_color=(0, 0.6, 0, 1),
+                icon_size="50dp",
+                pos_hint={"center_x": 0.5, "top": 1},
+            )
+            new_label = MDLabel(
+                text=class_name,  # Set the class name
+                halign="center",
+                size_hint=(1, None),
+                height="20dp",
+                bold=True,
+                font_style="Caption",
+                pos_hint={"center_x": 0.5, "y": 0},
+            )
 
-            for class_info in classes.get("classes", []):
-                class_name = class_info  # Since classes is now a list of class names
+            new_button_layout.add_widget(new_icon)
+            new_button_layout.add_widget(new_label)
 
-                new_button_layout = FloatLayout(size_hint=(None, None), size=(125, 100))
+            # Bind the button action
+            new_button_layout.bind(
+                on_release=lambda instance, name=class_name: self.go_to_class_page(name, code)
+            )
 
-                new_icon = MDIconButton(
-                    icon="notebook",
-                    theme_text_color="Custom",
-                    text_color=(0, 0.6, 0, 1),
-                    icon_size="50dp",
-                    pos_hint={"center_x": 0.5, "top": 1},
-                )
-                new_label = MDLabel(
-                    text=class_name,
-                    halign="center",
-                    size_hint=(1, None),
-                    height="20dp",
-                    bold=True,
-                    font_style="Caption",
-                    pos_hint={"center_x": 0.5, "y": 0},
-                )
-
-                new_button_layout.add_widget(new_icon)
-                new_button_layout.add_widget(new_label)
-
-                # Use a lambda to capture the current class_name and class_code
-                new_button_layout.bind(
-                    on_release=lambda instance, name=class_name: self.go_to_class_page(name, "Unknown Code"))
-
-                self.grid_layout.add_widget(new_button_layout)
-
+            # Add the new layout to the grid
+            self.grid_layout.add_widget(new_button_layout)
+               
 class Home_Teacher(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
